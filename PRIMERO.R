@@ -2,7 +2,7 @@
 
 ################## Setup ################## 
 rm(list=ls()) # clear global environment
-setwd(dir="/Users/Maartje/Documents/Promotietraject/Manuscripten in progress/PRIMERO PET-MRI/Analyse")
+setwd(dir="/Users/Maartje/repos/PRIMERO")
 library(tableone) # baseline tables
 library(dplyr) # select
 library(PairedData) # paired data comparison
@@ -32,9 +32,9 @@ measurements <- merge(mPETCT, mPETMRI, by = "Participant.Id", all = TRUE)
 data$outcome_conclusion_tu <- coalesce(data$specify_other_no_surgery, data$specify_no_surgery, data$surgery_cre, data$biopsies_tumor_cre4, data$biopsies_tumor_cre3)
 
 data$outcome_conclusion_tu_final <- car::recode(data$outcome_conclusion_tu, "c('distant metastases', 'CRE-1', 'CRE-2', 'CRE-3', 'CRE-4', 'refusal')='tumor'; 
-                                       c('No', 'active surveillance')='cCR'") # data$outcome_conclusion_tu[19] "No" has CRE-4 planned February and needs checking!!!!!!!!!!
+                                       c('No', 'active surveillance')='cCR'") # data$outcome_conclusion_tu[19] has cCR
 
-data$outcome_conclusion_tu_final[15] <- "cCR" # this patient had HGD in biopsies but TRG 1 in resection specimen, consider as cCR
+data$outcome_conclusion_tu_final[15] <- "cCR" # this patient had HGD in biopsies but TRG 1 in resection specimen, therefore consider as cCR
 data$outcome_conclusion_tu_final <- factor(data$outcome_conclusion_tu_final, ordered = TRUE, levels = c("tumor", "cCR"))
 
 # LN outcomes
@@ -131,7 +131,7 @@ baseVars <- c("age", "sex", names(data)[23:26], "diabetes", "trg", "radicality",
 catVars <- c("sex", "diabetes", "histology", "tumor_differentiation", "cT_stage", "cN_stage", "trg", "radicality", "ypt", "ypn", "prept", "prepn")
 tableBase <- CreateTableOne(vars = baseVars, factorVars = catVars, data = data)
 tableBase <- print(tableBase, nonnormal = c("age", "height", "interval_ncrt_tumor", "interval_tumor_surgery", "interval_scan_surgery", "interval_ncrt_surgery"), quote = FALSE, noSpaces = TRUE, digits=NULL)
-write.csv(tableBase, "output/Table1.csv", row.names = TRUE, na = "")
+#write.csv(tableBase, "output/Table1.csv", row.names = TRUE, na = "")
 
 # Describe range of diagnosis
 range(data$date_diagnosis)
@@ -159,7 +159,7 @@ catVars <- c("fasting", "prehydration")
 tableScan <- CreateTableOne(vars = scanVars, factorVars = catVars, data = data)
 tableScan <- print(tableScan, nonnormal = c("interval_ncrt_pet", "duration_petct", 'interval_inj_petct',
                                             "glucose", "duration_petmri", "interval_petmri"), quote = FALSE, noSpaces = TRUE, digits=NULL)
-write.csv(tableScan, "output/ScanParams.csv", row.names = TRUE, na = "")
+#write.csv(tableScan, "output/ScanParams.csv", row.names = TRUE, na = "")
 
 ##################  Questionnaires: experience with PET-CT vs PET-MRI ################## 
 petctQuestionnaires <- c("Participant.Id", "petct_uncomfortable", "petct_anxiety", "petct_painful", "petct_embarrassing")
@@ -184,7 +184,7 @@ table(dfQuestionnaires$painful, dfQuestionnaires$scan) # show answer options for
 catVars <- names(dfQuestionnaires[2:5])
 tableQu <- CreateTableOne(vars = catVars, factorVars = catVars, strata = "scan", data = dfQuestionnaires)
 tableQu <- print(tableQu, nonnormal = c(""), quote = FALSE, noSpaces = TRUE, digits=NULL)
-write.csv(tableQu, "output/TableBurden.csv", row.names = TRUE, na = "")
+#write.csv(tableQu, "output/TableBurden.csv", row.names = TRUE, na = "")
 # ignore P-values, these should be tested pair-wise
 
 # Assumption 1: are two-samples paired: yes
@@ -200,7 +200,7 @@ dfQuestionnaires$embarrassing_num <- as.numeric(car::recode(dfQuestionnaires$emb
 catVars <- c("uncomfortable_num", "anxiety_num", "painful_num", "embarrassing_num")
 tableQu <- CreateTableOne(vars = catVars, strata = "scan", data = dfQuestionnaires)
 tableQu <- print(tableQu, nonnormal = c(""), quote = FALSE, noSpaces = TRUE, digits=NULL)
-write.csv(tableQu, "output/TableBurden_num.csv", row.names = TRUE, na = "")
+#write.csv(tableQu, "output/TableBurden_num.csv", row.names = TRUE, na = "")
 
 
 # Paired data visualization
@@ -249,8 +249,7 @@ data$petmri_willing_future <- factor(data$petmri_willing_future, ordered = TRUE,
 
 tableQu <- CreateTableOne(vars = vars, factorVars = vars, includeNA = TRUE, data = data)
 tableQu <- print(tableQu, nonnormal = c(""), quote = FALSE, noSpaces = TRUE, digits=NULL)
-write.csv(tableQu, "output/TableBurden_other.csv", row.names = TRUE, na = "")
-
+#write.csv(tableQu, "output/TableBurden_other.csv", row.names = TRUE, na = "")
 
 
 ################## Qualitative observations between teams ################## 
@@ -480,7 +479,7 @@ Quantvars <- c("tu_sulmax_petct", "tu_sulmax_petmri", "tu_adc_group1", "tu_adc_g
 catVars <- c("outcome_conclusion_tu_final")
 tableQuant <- CreateTableOne(vars = Quantvars, factorVars = catVars, strata = "outcome_conclusion_tu_final", data = measurements)
 tableQuant <- print(tableQuant, nonnormal = c("tu_sulmax_petmri"), quote = FALSE, noSpaces = TRUE, digits=NULL)
-write.csv(tableQuant, "output/tableQuant.csv", row.names = TRUE, na = "")
+#write.csv(tableQuant, "output/tableQuant.csv", row.names = TRUE, na = "")
 
 # Intraclass correlation coefficient ADC
 icc(measurements[, c("tu_adc_group1", "tu_adc_group2")], model = "twoway", type = "agreement", unit = "single")
